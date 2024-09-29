@@ -13,7 +13,6 @@ namespace Infrastructure.SQLServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configurar el tipo de columna para PriceByHour con precisión de 18 y escala de 2 (18 dígitos, 2 decimales)
             modelBuilder.Entity<Service>()
                 .Property(s => s.PriceByHour)
                 .HasColumnType("decimal(18,2)");
