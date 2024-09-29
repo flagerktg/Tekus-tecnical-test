@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TekusApi.Models;
 
@@ -10,6 +11,7 @@ namespace TekusApi.Controllers
     /// Controller for managing Service.
     /// </summary>
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class ServicesController : ControllerBase
     {
@@ -91,5 +93,23 @@ namespace TekusApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(long id) =>
             ServiceService.Delete(id);
+
+        /// <summary>
+        /// Assigns countries to a service
+        /// </summary>
+        /// <param name="serviceId">Id of the Service</param>
+        /// <param name="countryCodes">List of country codes to assign</param>
+        [HttpPost("{serviceId}/countries")]
+        public void AssignCountries(long serviceId, List<(string Code, string Name)> countries) =>
+            ServiceService.AssignCountries(serviceId, countries);
+
+        /// <summary>
+        /// Get the list of countries assigned to a service
+        /// </summary>
+        /// <param name="serviceId">Id of the Service</param>
+        /// <returns>List of country codes</returns>
+        [HttpGet("{serviceId}/countries")]
+        public IEnumerable<CountryDto> GetCountries(long serviceId) =>
+            ServiceService.GetAssignedCountries(serviceId);
     }
 }

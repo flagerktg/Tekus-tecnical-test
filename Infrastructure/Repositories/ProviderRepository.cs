@@ -3,50 +3,49 @@ using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.SQLServer;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories
 {
-    public class ServiceRepository : GenericSqlRepository<Service>, IServiceRepository
+    public class ProviderRepository : GenericSqlRepository<Provider>, IProviderRepository
     {
-        private readonly SqlServerDbContext _context;
         private IMapper Mapper { get; }
 
-        public ServiceRepository(
+        public ProviderRepository(
             Lazy<SqlServerDbContext> context,
             IMapper mapper
         ) : base(context)
         {
-            _context = context.Value;
             Mapper = mapper;
         }
 
-        public ListResultCollectionDto<ServiceDto> List(ServiceListRequestDto request)
+        public ListResultCollectionDto<ProviderDto> List(ProviderListRequestDto request)
         {
-            IQueryable<Service> query = GetBaseEntityQuery();
+            IQueryable<Provider> query = GetBaseEntityQuery();
 
+            // Filtro por CountryId a través de los servicios asociados
             if (request.CountryId.HasValue)
             {
-                query = query.Where(s => s.Countries!.Any(c => c.Id == request.CountryId.Value));
+                query = query.Where(p => p.Services!.Any(s => s.Countries!.Any(c => c.Id == request.CountryId.Value)));
             }
 
-            // Filtro de búsqueda por Query (nombre del servicio)
+            // Filtro de búsqueda por Query (nombre o email del proveedor)
             if (!string.IsNullOrEmpty(request.Query))
             {
                 var lowerQuery = request.Query.ToLower();
-                query = query.Where(s =>
-                    (s.Name != null && s.Name.ToLower().Contains(lowerQuery))
+                query = query.Where(p =>
+                    (p.Name != null && p.Name.ToLower().Contains(lowerQuery)) ||
+                    (p.Email != null && p.Email.ToLower().Contains(lowerQuery))
                 );
             }
 
             // Ordenación
             if (!string.IsNullOrEmpty(request.OrderBy))
             {
-                Expression<Func<Service, dynamic>>? orderByExpression = request.OrderBy.ToLower() switch
+                Expression<Func<Provider, dynamic>>? orderByExpression = request.OrderBy.ToLower() switch
                 {
-                    "name" => s => s.Name!,
-                    _ => s => s.Id
+                    "name" => p => p.Name!,
+                    _ => p => p.Id
                 };
 
                 query = (request.OrderAsc ?? true)
@@ -58,21 +57,20 @@ namespace Infrastructure.Repositories
             var totalCount = query.Count();
 
             // Paginación
-            var services = query
+            var providers = query
                 .Skip(request.Offset ?? 0)
                 .Take(request.Limit ?? 100)
                 .ToList();
 
             // Mapear las entidades a DTOs
-            var resultItems = Mapper.Map<IEnumerable<ServiceDto>>(services);
+            var resultItems = Mapper.Map<IEnumerable<ProviderDto>>(providers);
 
             // Retornar el resultado
-            return new ListResultCollectionDto<ServiceDto>
+            return new ListResultCollectionDto<ProviderDto>
             {
                 TotalCount = totalCount,
                 Items = resultItems
             };
         }
-
     }
 }

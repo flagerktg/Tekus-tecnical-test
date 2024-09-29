@@ -7,58 +7,105 @@ using AutoMapper;
 using Application.Interfaces;
 using Application.Services;
 using Application.Repositories;
-using Infrastructure.Repositories;  // Asegúrate de que el espacio de nombres de tu servicio esté correcto
+using Infrastructure.Repositories;
+using TekusApi.Services;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Registro de HttpClient para el servicio externo de países.
+builder.Services.AddHttpClient<ICountryService, CountryService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:CountryApiUrl"]);
+});
+
+// Configurar la cadena de conexión desde appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("Connection");
 
 // Configura el DbContext para usar SQL Server
 builder.Services.AddDbContext<SqlServerDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Configura la autenticación JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var jwtKey = builder.Configuration["Auth:Jwt:Keys"]?.Split(",")[0]; 
-        if (string.IsNullOrEmpty(jwtKey))
-        {
-            throw new InvalidOperationException("JWT Key is not configured properly.");
-        }
+// Configurar autenticación JWT
+// Registrar JwtService como un servicio singleton
+builder.Services.AddSingleton<JwtService>();
 
-        options.TokenValidationParameters = new TokenValidationParameters
+// Configurar autenticación JWT
+var jwtConfig = builder.Configuration.GetSection("JwtConfig");
+var secretKey = jwtConfig["Secret"];
+var key = Encoding.ASCII.GetBytes(secretKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; 
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true, 
+        IssuerSigningKey = new SymmetricSecurityKey(key), 
+        ValidateIssuer = false, 
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero 
+    };
+});
+
+// Añadir autorización
+builder.Services.AddAuthorization();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Definir el esquema de seguridad para JWT
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Ingresa tu token JWT en este formato: Bearer {tu_token}",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Auth:Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Auth:Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)) 
-        };
-    });
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+    // Añadir la definición de seguridad a Swagger
+    options.AddSecurityDefinition("Bearer", securityScheme);
+    // Definir los requisitos de seguridad para Swagger
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        { securityScheme, new[] { "Bearer" } }
+    };
+    options.AddSecurityRequirement(securityRequirement);
+});
 
 // Registrar AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// Registrar Lazy inyección de dependencias
 builder.Services.AddTransient(typeof(Lazy<>));
 
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();  
+// Registrar servicios y repositorios
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 
+// Registrar configuración de AutoMapper con perfiles adicionales
 builder.Services.AddSingleton(new MapperConfiguration(mc =>
 {
     mc.AddProfiles(new Profile[]
     {
-                    new TekusApi.Setup.MapperProfile(),
-                    new Application.Setup.MapperProfile(),
+        new TekusApi.Setup.MapperProfile(),
+        new Application.Setup.MapperProfile(),
     });
 }).CreateMapper());
 
-// Agrega controladores
 builder.Services.AddControllers();
 
 // Configuración de Swagger
@@ -67,7 +114,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar el pipeline de la aplicación
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -77,8 +124,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Habilitar autenticación y autorización
-//app.UseAuthentication();
-//app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
