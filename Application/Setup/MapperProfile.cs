@@ -15,6 +15,16 @@ namespace Application.Setup
             CreateMap<ServiceDto, ServiceListResultDto>();
 
             #endregion
+
+            #region Providers
+
+            CreateMap<Provider, ProviderDto>()
+                .ForMember(dest => dest.ServiceIds,
+                opt => opt.MapFrom(src => src.Services!.Select(s => s.Id))); 
+            CreateMap<ProviderDto, Provider>();
+            CreateMap<ProviderDto, ProviderListResultDto>();
+
+            #endregion
         }
 
     }

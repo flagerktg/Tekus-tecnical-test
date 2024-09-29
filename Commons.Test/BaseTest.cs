@@ -11,12 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using TekusApi.Controllers;
+using System.Net.Http;
 
 namespace Tekus.Commons.Test
 {
     public class BaseTest : WebApplicationFactory<Program>
     {
-
         protected IServiceProvider ServiceProvider = null!;
         protected IConfiguration? Configuration { get; set; }
         protected IMapper? Mapper { get; set; }
@@ -43,28 +43,32 @@ namespace Tekus.Commons.Test
                 .AddDbContext<SqlServerDbContext>(
                     options => options.UseSqlServer(Configuration.GetConnectionString("Connection")));
 
-
             services.AddTransient(typeof(Lazy<>));
             services.AddSingleton(typeof(ILogger<>), typeof(FakeLogger<>));
 
             // Repositories
+            services.AddScoped<ICountryRepository, CountryRepository>();
+            services.AddScoped<IProviderRepository, ProviderRepository>();
             services.AddScoped<IServiceRepository, ServiceRepository>();
-            //services.AddScoped<ICenterRepository, CenterRepository>();
-
 
             // Services
+            services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<IProviderService, ProviderService>();
             services.AddScoped<IServiceService, ServiceService>();
-            //services.AddScoped<ICenterService, CenterService>();
 
+            // Registro de HttpClient para el servicio externo de países.
+            services.AddHttpClient<ICountryService, CountryService>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["ExternalServices:CountryApiUrl"]);
+            });
 
             // Controllers
             services.AddScoped<ServicesController>();
-            //services.AddScoped<CentersController>();
-    
+            services.AddScoped<CountriesController>();
+            services.AddScoped<ProvidersController>();
 
             ServiceProvider = services.BuildServiceProvider();
             Mapper = ServiceProvider?.GetRequiredService<IMapper>();
-
         }
     }
 }

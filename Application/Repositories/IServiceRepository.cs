@@ -11,6 +11,5 @@ namespace Application.Repositories
         /// <param name="request">Filters to be applied</param>
         /// <returns>Services matching filters specified</returns>
         ListResultCollectionDto<ServiceDto> List(ServiceListRequestDto request);
-
     }
 }

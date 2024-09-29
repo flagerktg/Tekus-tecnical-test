@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    [Migration("20240928234522_InitialDatabase")]
+    [Migration("20240929193658_InitialDatabase")]
     partial class InitialDatabase
     {
         /// <inheritdoc />
@@ -47,6 +47,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -122,9 +125,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Service", b =>
                 {
-                    b.HasOne("Domain.Entities.Provider", null)
+                    b.HasOne("Domain.Entities.Provider", "Provider")
                         .WithMany("Services")
                         .HasForeignKey("ProviderId");
+
+                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("Domain.Entities.Provider", b =>

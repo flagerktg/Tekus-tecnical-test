@@ -22,6 +22,16 @@ namespace TekusApi.Setup
             CreateMap<Application.DTOs.ServiceListResultDto, TekusApi.Models.ServiceListResult>();
 
             #endregion
+
+            #region Providers
+
+            CreateMap<TekusApi.Models.CreateProvider, Application.DTOs.ProviderDto>();
+            CreateMap<Application.DTOs.ProviderDto, TekusApi.Models.Provider>()
+                .ReverseMap();
+            CreateMap<TekusApi.Models.ProviderListRequest, Application.DTOs.ProviderListRequestDto>();
+            CreateMap<Application.DTOs.ProviderListResultDto, TekusApi.Models.ProviderListResult>();
+
+            #endregion
         }
     }
 }
