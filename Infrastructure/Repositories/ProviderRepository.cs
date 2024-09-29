@@ -3,6 +3,7 @@ using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.SQLServer;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories
@@ -23,13 +24,11 @@ namespace Infrastructure.Repositories
         {
             IQueryable<Provider> query = GetBaseEntityQuery();
 
-            // Filtro por CountryId a través de los servicios asociados
             if (request.CountryId.HasValue)
             {
                 query = query.Where(p => p.Services!.Any(s => s.Countries!.Any(c => c.Id == request.CountryId.Value)));
             }
 
-            // Filtro de búsqueda por Query (nombre o email del proveedor)
             if (!string.IsNullOrEmpty(request.Query))
             {
                 var lowerQuery = request.Query.ToLower();
@@ -72,5 +71,16 @@ namespace Infrastructure.Repositories
                 Items = resultItems
             };
         }
+        public Dictionary<string, int> GetProvidersByCountry()
+        {
+            return Context.Value.Providers
+                .Include(p => p.Services!)
+                .ThenInclude(s => s.Countries!)
+                .SelectMany(p => p.Services!.SelectMany(s => s.Countries!))
+                .GroupBy(c => c.Code ?? "UNKNOWN") 
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+
     }
 }

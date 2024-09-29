@@ -10,7 +10,6 @@ namespace Infrastructure.Repositories
 {
     public class ServiceRepository : GenericSqlRepository<Service>, IServiceRepository
     {
-        private readonly SqlServerDbContext _context;
         private IMapper Mapper { get; }
 
         public ServiceRepository(
@@ -18,7 +17,6 @@ namespace Infrastructure.Repositories
             IMapper mapper
         ) : base(context)
         {
-            _context = context.Value;
             Mapper = mapper;
         }
 
@@ -72,6 +70,15 @@ namespace Infrastructure.Repositories
                 TotalCount = totalCount,
                 Items = resultItems
             };
+        }
+
+        public Dictionary<string, int> GetServicesByCountry()
+        {
+            return Context.Value.Services
+                .Include(s => s.Countries!)
+                .SelectMany(s => s.Countries!)
+                .GroupBy(c => c.Code ?? "UNKNOWN") // Asignar un valor predeterminado si el código es nulo
+                .ToDictionary(g => g.Key, g => g.Count());
         }
 
     }
