@@ -1,7 +1,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Infrastructure.SQLServer
 {
     public class SqlServerDbContext : DbContext
@@ -11,7 +10,6 @@ namespace Infrastructure.SQLServer
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Service> Services { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +27,7 @@ namespace Infrastructure.SQLServer
 
             #endregion
 
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
