@@ -1,4 +1,4 @@
-﻿namespace Api.Models
+﻿namespace TekusApi.Models
 {
     /// <summary>
     /// Model used for creating a new Service item.
@@ -11,8 +11,13 @@
         public string? Name { get; set; }
 
         /// <summary>
-        /// Price By hour of the service.
+        /// Price by hour of the Service.
         /// </summary>
-        public decimal? PriceByhour { get; set; }
+        public decimal? PriceByHour { get; set; }
+
+        /// <summary>
+        /// Provider Id of the Service.
+        /// </summary>
+        public long? ProviderId { get; set; }
     }
 }

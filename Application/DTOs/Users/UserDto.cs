@@ -1,6 +1,4 @@
-﻿using Application.DTOs;
-
-namespace Application.DTOs
+﻿namespace Application.DTOs
 {
     public class UserDto : BaseEntityDto
     {

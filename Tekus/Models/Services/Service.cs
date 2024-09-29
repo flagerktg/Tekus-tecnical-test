@@ -1,4 +1,4 @@
-﻿namespace Api.Models
+﻿namespace TekusApi.Models
 {
     /// <summary>
     /// Model representing a Service with additional properties

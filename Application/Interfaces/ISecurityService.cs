@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
 
-namespace Tekus.Application.Interfaces
+namespace Application.Interfaces
 {
     public interface ISecurityService
     {
