@@ -10,5 +10,11 @@ namespace Application.Interfaces
         /// <param name="request">Filters to be applied</param>
         /// <returns>Providers matching filters specified</returns>
         ListResultCollectionDto<ProviderListResultDto> List(ProviderListRequestDto request);
+
+        /// <summary>
+        /// Summary Result
+        /// </summary>
+        /// <returns>Providers And Services Summary</returns>
+        SummaryResultDto GetProvidersAndServicesSummary();
     }
 }

@@ -92,6 +92,13 @@ namespace TekusApi.Controllers
         public void Delete(long id) =>
             ProviderService.Delete(id);
 
+        /// <summary>
+        /// Get summary of providers and services by country
+        /// </summary>
+        /// <returns>Summary result of providers and services by country</returns>
+        [HttpGet("summary")]
+        public SummaryResultDto GetSummary() =>
+            ProviderService.GetProvidersAndServicesSummary();
 
     }
 }
