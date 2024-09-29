@@ -14,10 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("Connection");
 
-
-// Obtén la cadena de conexión desde appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("Connection");
-
 // Configura el DbContext para usar SQL Server
 builder.Services.AddDbContext<SqlServerDbContext>(options =>
     options.UseSqlServer(connectionString));
