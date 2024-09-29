@@ -1,16 +1,14 @@
-﻿using AutoMapper;
-using TekusApi.Models;
-using Application.DTOs;
+﻿using Application.DTOs;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using TekusApi.Models;
 
-namespace Deal2.Api.Controllers
+namespace TekusApi.Controllers
 {
     /// <summary>
     /// Controller for managing Service.
     /// </summary>
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ServicesController : ControllerBase

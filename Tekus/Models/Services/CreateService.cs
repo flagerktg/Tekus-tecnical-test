@@ -14,5 +14,10 @@
         /// Price by hour of the Service.
         /// </summary>
         public decimal? PriceByHour { get; set; }
+
+        /// <summary>
+        /// Provider Id of the Service.
+        /// </summary>
+        public long? ProviderId { get; set; }
     }
 }

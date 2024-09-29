@@ -23,14 +23,14 @@ namespace Application.Interfaces
         /// Updates a <see cref="TDto"/>
         /// </summary>
         /// <param name="dto"><see cref="TDto"/> to update</param>
-        /// <exception cref="Deal2Exception">When <see cref="TDto"/> does not exist</exception>
+        /// <exception cref="TekusException">When <see cref="TDto"/> does not exist</exception>
         public void Update(TDto dto);
 
         /// <summary>
         /// Deletes a <see cref="TDto"/>
         /// </summary>
         /// <param name="id">Id of <see cref="TDto"/> to delete</param>
-        /// <exception cref="Deal2Exception">When <see cref="TDto"/> does not exist</exception>
+        /// <exception cref="TekusException">When <see cref="TDto"/> does not exist</exception>
         public void Delete(long id);
     }
 }

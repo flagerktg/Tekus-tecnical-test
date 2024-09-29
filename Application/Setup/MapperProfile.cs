@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Application.DTOs;
+using AutoMapper;
+using Domain.Entities;
 
 namespace Application.Setup
 {
@@ -6,6 +8,13 @@ namespace Application.Setup
     {
         public MapperProfile()
         {
+
+            #region Services
+
+            CreateMap<Service, ServiceDto>().ReverseMap();
+            CreateMap<ServiceDto, ServiceListResultDto>();
+
+            #endregion
         }
 
     }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
-namespace Deal2.Infrastructure.Repositories
+namespace Infrastructure.Repositories
 {
     public class GenericSqlRepository<TEntity> : IGenericRepository<TEntity>
         where TEntity : BaseEntity

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace Api.Setup
+namespace TekusApi.Setup
 {
     /// <summary>
     /// Defines mapping profiles for AutoMapper.
@@ -12,6 +12,16 @@ namespace Api.Setup
         /// </summary>
         public MapperProfile()
         {
+
+            #region Services
+
+            CreateMap<TekusApi.Models.CreateService, Application.DTOs.ServiceDto>();
+            CreateMap<Application.DTOs.ServiceDto, TekusApi.Models.Service>()
+                .ReverseMap();
+            CreateMap<TekusApi.Models.ServiceListRequest, Application.DTOs.ServiceListRequestDto>();
+            CreateMap<Application.DTOs.ServiceListResultDto, TekusApi.Models.ServiceListResult>();
+
+            #endregion
         }
     }
 }

@@ -1,4 +1,8 @@
+using Application.Interfaces;
+using Application.Repositories;
+using Application.Services;
 using AutoMapper;
+using Infrastructure.Repositories;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
+using TekusApi.Controllers;
 
 namespace Tekus.Commons.Test
 {
@@ -31,7 +36,7 @@ namespace Tekus.Commons.Test
                         mc =>
                         {
                             mc.AddProfiles(new List<Profile> {
-                            new Api.Setup.MapperProfile(),
+                            new TekusApi.Setup.MapperProfile(),
                             new Application.Setup.MapperProfile()
                         });
                         }).CreateMapper())
@@ -43,17 +48,17 @@ namespace Tekus.Commons.Test
             services.AddSingleton(typeof(ILogger<>), typeof(FakeLogger<>));
 
             // Repositories
-            //services.AddScoped<IAlertConfigurationRepository, AlertConfigurationRepository>();
+            services.AddScoped<IServiceRepository, ServiceRepository>();
             //services.AddScoped<ICenterRepository, CenterRepository>();
 
 
             // Services
-            //services.AddScoped<IAlertConfigurationService, AlertConfigurationService>();
+            services.AddScoped<IServiceService, ServiceService>();
             //services.AddScoped<ICenterService, CenterService>();
 
 
             // Controllers
-            //services.AddScoped<AuthController>();
+            services.AddScoped<ServicesController>();
             //services.AddScoped<CentersController>();
     
 

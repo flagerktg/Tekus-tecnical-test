@@ -4,6 +4,7 @@
     {
         public string? Name { get; set; }
         public decimal? PriceByHour { get; set; }
+        public long? ProviderId { get; set; }
 
     }
 }
