@@ -10,13 +10,14 @@ using Application.Repositories;
 using Infrastructure.Repositories;
 using TekusApi.Services;
 using Microsoft.OpenApi.Models;
+using Domain.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Registro de HttpClient para el servicio externo de países.
 builder.Services.AddHttpClient<ICountryService, CountryService>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:CountryApiUrl"]);
+    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:CountryApiUrl"]?? throw new TekusException("not valid Country Api Url"));
 });
 
 // Configurar la cadena de conexión desde appsettings.json
@@ -33,7 +34,7 @@ builder.Services.AddSingleton<JwtService>();
 // Configurar autenticación JWT
 var jwtConfig = builder.Configuration.GetSection("JwtConfig");
 var secretKey = jwtConfig["Secret"];
-var key = Encoding.ASCII.GetBytes(secretKey);
+var key = Encoding.ASCII.GetBytes(secretKey!);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -90,11 +91,13 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient(typeof(Lazy<>));
 
 // Registrar servicios y repositorios
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
-builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IProviderService, ProviderService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
 
 // Registrar configuración de AutoMapper con perfiles adicionales
 builder.Services.AddSingleton(new MapperConfiguration(mc =>

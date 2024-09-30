@@ -15,7 +15,7 @@ namespace Application.Interfaces
         /// Assign Countries to Service
         /// </summary>
         /// <returns>Service matching filters specified</returns>
-        void AssignCountries(long serviceId, List<(string Code, string Name)> countries);
+        void AssignCountries(long serviceId, List<string> countryCodes);
 
         /// <param name="serviceId">The ID of the service  to unassign the service from.</param>
         /// <param name="countryCode">The country code of the service to unassign.</param>

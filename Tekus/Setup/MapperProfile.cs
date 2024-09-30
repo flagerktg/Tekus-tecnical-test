@@ -13,6 +13,12 @@ namespace TekusApi.Setup
         public MapperProfile()
         {
 
+            #region Countries
+
+            CreateMap<Application.DTOs.CountryDto, TekusApi.Models.Country>().ReverseMap();
+
+            #endregion
+
             #region Services
 
             CreateMap<TekusApi.Models.CreateService, Application.DTOs.ServiceDto>();
@@ -30,6 +36,12 @@ namespace TekusApi.Setup
                 .ReverseMap();
             CreateMap<TekusApi.Models.ProviderListRequest, Application.DTOs.ProviderListRequestDto>();
             CreateMap<Application.DTOs.ProviderListResultDto, TekusApi.Models.ProviderListResult>();
+
+            #endregion
+
+            #region Common
+
+            CreateMap(typeof(Application.DTOs.ListResultCollectionDto<>), typeof(TekusApi.Models.ListResultCollection<>));
 
             #endregion
         }

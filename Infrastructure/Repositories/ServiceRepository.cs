@@ -25,9 +25,10 @@ namespace Infrastructure.Repositories
             IQueryable<Service> query = GetBaseEntityQuery();
 
             if (request.CountryId.HasValue)
-            {
                 query = query.Where(s => s.Countries!.Any(c => c.Id == request.CountryId.Value));
-            }
+
+            if (request.ProviderId.HasValue)
+                query = query.Where(s => s.ProviderId == request.ProviderId);
 
             // Filtro de búsqueda por Query (nombre del servicio)
             if (!string.IsNullOrEmpty(request.Query))
@@ -77,9 +78,16 @@ namespace Infrastructure.Repositories
             return Context.Value.Services
                 .Include(s => s.Countries!)
                 .SelectMany(s => s.Countries!)
-                .GroupBy(c => c.Code ?? "UNKNOWN") // Asignar un valor predeterminado si el código es nulo
+                .GroupBy(c => c.Name ?? "UNKNOWN") 
                 .ToDictionary(g => g.Key, g => g.Count());
         }
 
+        public IEnumerable<Country> GetCountriesByServiceId(long serviceId)
+        {
+            return Context.Value.Services.Where(s => s.Id == serviceId)
+                .Include(s => s.Countries!)
+                .SelectMany(s => s.Countries!);
+ 
+        }
     }
 }

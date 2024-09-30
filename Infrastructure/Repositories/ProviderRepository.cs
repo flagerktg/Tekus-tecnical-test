@@ -22,7 +22,8 @@ namespace Infrastructure.Repositories
 
         public ListResultCollectionDto<ProviderDto> List(ProviderListRequestDto request)
         {
-            IQueryable<Provider> query = GetBaseEntityQuery();
+            IQueryable<Provider> query = GetBaseEntityQuery()
+                .Include(p => p.Services);
 
             if (request.CountryId.HasValue)
             {
@@ -76,11 +77,14 @@ namespace Infrastructure.Repositories
             return Context.Value.Providers
                 .Include(p => p.Services!)
                 .ThenInclude(s => s.Countries!)
-                .SelectMany(p => p.Services!.SelectMany(s => s.Countries!))
-                .GroupBy(c => c.Code ?? "UNKNOWN") 
-                .ToDictionary(g => g.Key, g => g.Count());
+                .SelectMany(p => p.Services!.SelectMany(s => s.Countries!)
+                            .Select(c => new { Country = c, Provider = p }))
+                .GroupBy(cp => cp.Country!.Name ?? "UNKNOWN")
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(cp => cp.Provider).Distinct().Count()
+                );
         }
-
 
     }
 }

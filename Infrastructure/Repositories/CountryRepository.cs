@@ -2,8 +2,6 @@
 using Domain.Entities;
 using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Infrastructure.Repositories
 {
@@ -20,10 +18,14 @@ namespace Infrastructure.Repositories
 
         public IEnumerable<Country> GetCountriesByCodes(IEnumerable<string> countryCodes)
         {
-            // Implementar la lógica para obtener los países según sus códigos
+            return [.. _dbContext.Countries.Where(c => countryCodes.Contains(c.Code))];
+        }
+
+        public Country? GetCountryByCode(string code)
+        {
             return _dbContext.Countries
-                .Where(c => countryCodes.Contains(c.Code))
-                .ToList();
+                 .Where(c => code.ToLower().Equals(c.Code!.ToLower()))
+                 .FirstOrDefault();
         }
     }
 }

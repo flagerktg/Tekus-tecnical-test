@@ -1,4 +1,4 @@
-﻿namespace TekusApi.Models.Countries
+﻿namespace TekusApi.Models
 {
     public class Country
     {

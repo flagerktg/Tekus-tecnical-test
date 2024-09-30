@@ -1,6 +1,9 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.Services;
 using AutoMapper;
+using Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TekusApi.Models;
 
@@ -10,20 +13,24 @@ namespace TekusApi.Controllers
     /// Controller for managing Provider.
     /// </summary>
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class ProvidersController : ControllerBase
     {
         private IMapper Mapper { get; }
         private IProviderService ProviderService { get; }
+        private IServiceService ServiceService { get; }
 
         /// <summary>Constructor</summary>
         public ProvidersController(
             IMapper mapper,
-            IProviderService providerService
+            IProviderService providerService,
+            IServiceService serviceService
         )
         {
             Mapper = mapper;
             ProviderService = providerService;
+            ServiceService = serviceService;
         }
 
         /// <summary>
@@ -89,8 +96,15 @@ namespace TekusApi.Controllers
         /// <param name="id">Id of the Provider to delete</param>
         /// <returns>OK if entity removed</returns>
         [HttpDelete("{id}")]
-        public void Delete(long id) =>
+        public void Delete(long id)
+        {
+            var services = ServiceService.List(new ServiceListRequestDto { ProviderId = id });
+
+            if (services.TotalCount > 0)
+                throw new TekusException("this provider is already used in one or more services");
+
             ProviderService.Delete(id);
+        }
 
         /// <summary>
         /// Get summary of providers and services by country

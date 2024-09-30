@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TekusApi.Models;
 using TekusApi.Services;
 namespace TekusApi.Controllers
@@ -9,18 +8,23 @@ namespace TekusApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly JwtService _jwtService;
+
         // Almacenamiento de usuarios en memoria
         private readonly Dictionary<string, string> _usuarios = new Dictionary<string, string>
         {
-            { "usuario1", "password1" },
-            { "usuario2", "password2" },
-            { "string", "string" }
+            { "tekus1", "password1" },
+            { "tekus2", "password2" }
         };
+
         public AuthController(JwtService jwtService)
         {
             _jwtService = jwtService;
         }
+
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(object))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(object))]
         public IActionResult Login([FromBody] AuthRequest request)
         {
             if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
@@ -34,5 +38,6 @@ namespace TekusApi.Controllers
             }
             return Unauthorized(new { Mensaje = "Invalid credentials." });
         }
+
     }
 }

@@ -21,11 +21,6 @@
         public string? Email { get; set; }
 
         /// <summary>
-        /// List of Service IDs associated with the Provider.
-        /// </summary>
-        public IEnumerable<long>? ServiceIds { get; set; }
-
-        /// <summary>
         /// Optional personalized fields for the Provider.
         /// </summary>
         public Dictionary<string, string>? PersonalizedFields { get; set; }

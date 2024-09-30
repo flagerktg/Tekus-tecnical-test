@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Diagnostics.Metrics;
 using Tekus.Commons.Test;
 using TekusApi.Controllers;
 using TekusApi.Models;
@@ -53,18 +54,11 @@ namespace Tekus.Api.Test
             Assert.True(serviceId > 0);
 
             // Asociar el servicio con países simulados (usando código y nombre)
-            ServicesController.AssignCountries(serviceId, new List<(string Code, string Name)>
-                {
-                    (country.Code!, country.Name!)
-                });
+            ServicesController.AssignCountries(serviceId, [country.Code!]);
 
             // Validar que el país fue asignado correctamente
             var serviceCountries = ServicesController.GetCountries(serviceId);
             Assert.Contains(serviceCountries, sc => sc.Code == country.Code);
-
-            //Leer proveedor para validar que tiene el servicio asociado
-            Provider providerRead = ProvidersController.Read(providerId);
-            Assert.Contains(serviceId, providerRead.ServiceIds!);
 
             //// Actualizar el servicio
             CreateService serviceUpdateModel = ServiceMock.Create(providerId, 120);
@@ -104,27 +98,21 @@ namespace Tekus.Api.Test
             Assert.True(serviceId2 > 0);
 
             // Asociar los servicios con los países simulados
-            ServicesController.AssignCountries(serviceId1, new List<(string Code, string Name)>
-            {
-                (country1.Code!, country1.Name!)
-            });
-
-            ServicesController.AssignCountries(serviceId2, new List<(string Code, string Name)>
-            {
-                (country2.Code!, country2.Name!)
-            });
+            ServicesController.AssignCountries(serviceId1, [country1.Code!]);
+            ServicesController.AssignCountries(serviceId2, [country2.Code!]);
 
             // Obtener el resumen de indicadores
             var summary = ProvidersController.GetSummary();
 
             // Validar que los proveedores creados están en el resumen
-            Assert.True(summary.ProvidersByCountry.ContainsKey(country1.Code!) && summary.ProvidersByCountry[country1.Code!] > 0);
-            Assert.True(summary.ProvidersByCountry.ContainsKey(country2.Code!) && summary.ProvidersByCountry[country2.Code!] > 0);
+            Assert.True(summary.ProvidersByCountry.ContainsKey(country1.Name!) && summary.ProvidersByCountry[country1.Name!] > 0);
+            Assert.True(summary.ProvidersByCountry.ContainsKey(country2.Name!) && summary.ProvidersByCountry[country2.Name!] > 0);
 
             // Validar que los servicios creados están en el resumen
-            Assert.True(summary.ServicesByCountry.ContainsKey(country1.Code!) && summary.ServicesByCountry[country1.Code!] > 0);
-            Assert.True(summary.ServicesByCountry.ContainsKey(country2.Code!) && summary.ServicesByCountry[country2.Code!] > 0);
+            Assert.True(summary.ServicesByCountry.ContainsKey(country1.Name!) && summary.ServicesByCountry[country1.Name!] > 0);
+            Assert.True(summary.ServicesByCountry.ContainsKey(country2.Name!) && summary.ServicesByCountry[country2.Name!] > 0);
         }
+
 
     }
 }

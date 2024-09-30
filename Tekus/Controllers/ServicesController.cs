@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TekusApi.Models;
@@ -17,15 +18,19 @@ namespace TekusApi.Controllers
     {
         private IMapper Mapper { get; }
         private IServiceService ServiceService { get; }
+        private IProviderService ProviderService { get; }
+
 
         /// <summary>Constructor</summary>
         public ServicesController(
             IMapper mapper,
-            IServiceService serviceService
+            IServiceService serviceService,
+            IProviderService providerService
         )
         {
             Mapper = mapper;
             ServiceService = serviceService;
+            ProviderService = providerService;
         }
 
         /// <summary>
@@ -49,12 +54,17 @@ namespace TekusApi.Controllers
         /// <param name="model">Service information</param>
         /// <returns>Id of Service</returns>
         [HttpPost]
-        public long Create(CreateService model) =>
-            ServiceService.Create(
-                Mapper.Map<ServiceDto>(
-                    model
-                )
-            );
+        public long Create(CreateService model)
+        {
+            ProviderService.Read(model.ProviderId);
+
+            return ServiceService.Create(
+                   Mapper.Map<ServiceDto>(
+                       model
+                   )
+               );
+        }
+           
 
         /// <summary>
         /// Gets a Service by its Id
@@ -74,7 +84,10 @@ namespace TekusApi.Controllers
         /// <param name="model">Updated Service information</param>
         /// <returns>OK if entity updated</returns>
         [HttpPut]
-        public void Update(long id, CreateService model) =>
+        public void Update(long id, CreateService model)
+        {
+            ProviderService.Read(model.ProviderId);
+
             ServiceService.Update(
                 Mapper.Map(
                     model,
@@ -84,6 +97,8 @@ namespace TekusApi.Controllers
                     }
                 )
             );
+        }
+        
 
         /// <summary>
         /// Deletes a Service by its Id
@@ -98,10 +113,10 @@ namespace TekusApi.Controllers
         /// Assigns countries to a service
         /// </summary>
         /// <param name="serviceId">Id of the Service</param>
-        /// <param name="countryCodes">List of country codes to assign</param>
+        /// <param name="countries">List of country codes to assign</param>
         [HttpPost("{serviceId}/countries")]
-        public void AssignCountries(long serviceId, List<(string Code, string Name)> countries) =>
-            ServiceService.AssignCountries(serviceId, countries);
+        public void AssignCountries(long serviceId, List<string> countryCodes) =>
+            ServiceService.AssignCountries(serviceId, countryCodes);
 
         /// <summary>
         /// Get the list of countries assigned to a service

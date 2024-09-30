@@ -16,7 +16,6 @@ namespace TekusApi.Test.Mocks
                 .RuleFor(p => p.Nit, f => f.Random.String2(10, "0123456789"))
                 .RuleFor(p => p.Name, f => f.Company.CompanyName()) 
                 .RuleFor(p => p.Email, f => f.Internet.Email()) 
-                .RuleFor(p => p.ServiceIds, f => f.Make(3, () => f.Random.Long(1, 100))) 
                 .RuleFor(p => p.PersonalizedFields, f => new Dictionary<string, string>
                 {
                     { "Field1", f.Lorem.Word() },
@@ -35,7 +34,6 @@ namespace TekusApi.Test.Mocks
             Assert.Equal(expected.Nit, actual.Nit);
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Email, actual.Email);
-            Assert.Equal(expected.ServiceIds, actual.ServiceIds);
             Assert.Equal(expected.PersonalizedFields, actual.PersonalizedFields);
         }
     }

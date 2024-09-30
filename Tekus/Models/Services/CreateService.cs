@@ -18,6 +18,6 @@
         /// <summary>
         /// Provider Id of the Service.
         /// </summary>
-        public long? ProviderId { get; set; }
+        public long ProviderId { get; set; }
     }
 }
