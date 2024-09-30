@@ -4,5 +4,6 @@
     {
         public string? Query { get; set; }
         public long? CountryId { get; set; }
+        public long? ProviderId { get; set; }
     }
 }

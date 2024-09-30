@@ -9,6 +9,12 @@ namespace Application.Setup
         public MapperProfile()
         {
 
+            #region Countries
+
+            CreateMap<Country, CountryDto>().ReverseMap();
+
+            #endregion
+
             #region Services
 
             CreateMap<Service, ServiceDto>().ReverseMap();
@@ -23,6 +29,12 @@ namespace Application.Setup
                 opt => opt.MapFrom(src => src.Services!.Select(s => s.Id))); 
             CreateMap<ProviderDto, Provider>();
             CreateMap<ProviderDto, ProviderListResultDto>();
+
+            #endregion
+
+            #region Commons
+
+            CreateMap(typeof(ListResultCollectionDto<>), typeof(ListResultCollectionDto<>));
 
             #endregion
         }

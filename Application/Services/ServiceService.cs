@@ -12,48 +12,32 @@ namespace Application.Services
 {
     public class ServiceService : CrudService<ServiceDto, Service, IServiceRepository>, IServiceService
     {
-        private readonly ICountryRepository _countryRepository;
+        private readonly ICountryService _countryService;
 
         public ServiceService(
             IMapper mapper,
             IServiceRepository repository,
-            ICountryRepository countryRepository
+            ICountryService countryService
         ) : base(mapper, repository)
         {
-            _countryRepository = countryRepository;
+            _countryService = countryService;
         }
         public ListResultCollectionDto<ServiceListResultDto> List(ServiceListRequestDto request) =>
             Mapper.Map<ListResultCollectionDto<ServiceListResultDto>>(
                 Repository.List(request)
             );
 
-        public void AssignCountries(long serviceId, List<(string Code, string Name)> countries)
+        public void AssignCountries(long serviceId, List<string> countryCodes)
         {
             // Verificar si el servicio existe
             Service service = CheckEntity(serviceId);
 
             service.Countries!.Clear();
 
-            foreach (var (code, name) in countries)
+            foreach (var code in countryCodes)
             {
-                // Verificar si el país ya existe en la base de datos
-                var existingCountry = _countryRepository.Get(c => c.Code == code).FirstOrDefault();
-                if (existingCountry == null)
-                {
-                    // Si el país no existe, crearlo
-                    var newCountry = new Country
-                    {
-                        Code = code,
-                        Name = name
-                    };
-
-                    _countryRepository.Create(newCountry);
-                    _countryRepository.Save();
-
-                    existingCountry = newCountry; // Asignar el nuevo país como el existente
-                }
-
-                // Asignar el país al servicio
+                var existingCountry = _countryService.GetCountryByCode(code); 
+                
                 service.Countries.Add(existingCountry);
             }
 
@@ -62,13 +46,9 @@ namespace Application.Services
 
         public IEnumerable<CountryDto> GetAssignedCountries(long serviceId)
         {
-            var service = CheckEntity(serviceId);
+            CheckEntity(serviceId);
 
-            return service.Countries!.Select(c => new CountryDto
-            {
-                Code = c.Code,
-                Name = c.Name
-            });
+            return Mapper.Map<IEnumerable<CountryDto>>(Repository.GetCountriesByServiceId(serviceId));
         }
 
         public void UnassignCountry(long serviceId, string countryCode)

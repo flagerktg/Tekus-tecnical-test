@@ -17,5 +17,12 @@ namespace Application.Repositories
         /// </summary>
         /// <returns>A dictionary where the key is the country name, and the value is the count of services in that country.</returns>
         Dictionary<string, int> GetServicesByCountry();
+
+        /// <summary>
+        /// Retrieves a list of countries assigned to a specific service, grouped by the service's ID.
+        /// </summary>
+        /// <param name="serviceId">The unique identifier of the service.</param>
+        /// <returns>A collection of countries associated with the specified service.</returns>
+        IEnumerable<Country> GetCountriesByServiceId(long serviceId);
     }
 }
